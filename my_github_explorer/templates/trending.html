@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trending Repositories</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      transition: background-color 0.3s; /* Add transition for dark mode */
+    }
+
+    body.dark-mode {
+      background-color: #333;
+      color: #000000;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    label {
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    p {
+      margin: 10px 0;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    li {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 15px;
+      width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    li:hover {
+      transform: scale(1.05);
+    }
+
+    strong {
+      font-size: 18px;
+      color: #2c3e50;
+    }
+
+    .repo-description {
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 10px;
+      max-height: 60px;
+      overflow: hidden;
+    }
+
+    .repo-details {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+
+    .view-on-github {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .view-on-github a {
+      text-decoration: none;
+      padding: 10px 20px;
+      background-color: #2ecc71;
+      color: #fff;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .view-on-github a:hover {
+      background-color: #27ae60;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination a {
+      color: #3498db;
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .pagination a.active {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .pagination a:hover:not(.active) {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trending Repositories</h1>
+
+  <div id="dark-mode-toggle-label">
+    <label for="dark-mode-toggle">Dark Mode:</label>
+    <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+  </div>
+
+  {% if message %}
+    <p>{{ message }}</p>
+  {% endif %}
+
+  {% if repositories %}
+    <ul>
+      {% for repo in repositories %}
+        <li>
+          <strong>{{ repo.name }}</strong>
+          <p id="repo_{{loop.index}}" class="repo-description">{{ repo.description }}</p>
+          {% if repo.description and repo.description|length > 60 %}
+            <a href="#" onclick="toggleDescription('{{ loop.index }}');" class="show-more">Show more</a>
+          {% endif %}
+          <p class="repo-details">Stars: {{ repo.stargazers_count }}, Forks: {{ repo.forks_count }}, Language: {{ repo.language }}</p>
+          <div class="view-on-github">
+            <a href="{{ repo.html_url }}" target="_blank">View on GitHub</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      {% if page > 1 %}
+        <a href="?page={{ page-1 }}" class="pagination-link">&laquo; Prev</a>
+      {% endif %}
+      {% for num in range(1, total_pages + 1) %}
+        {% if num == page %}
+          <a href="?page={{ num }}" class="pagination-link active">{{ num }}</a>
+        {% else %}
+          <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+        <a href="?page={{ page+1 }}" class="pagination-link">Next &raquo;</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function toggleDescription(index) {
+      var description = document.getElementById("repo_" + index);
+      var showMoreLink = document.querySelector(".show-more");
+
+      if (description.style.maxHeight) {
+        description.style.maxHeight = null;
+        showMoreLink.innerHTML = "Show more";
+      } else {
+        description.style.maxHeight = "100%";
+        showMoreLink.innerHTML = "Show less";
+      }
+    }
+  </script>
+</body>
+</html>
